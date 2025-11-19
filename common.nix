@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 
 let
   isDarwin = pkgs.stdenv.isDarwin;
@@ -6,8 +6,6 @@ let
 in
 {
   home.stateVersion = "25.11";
-
-  xdg.enable = true;
 
   #---------------------------------------------------------------------
   # Packages
@@ -19,10 +17,7 @@ in
       awscli2
       eza
       fd
-      fzf
       gh
-      git
-      gnupg
       nerd-fonts.jetbrains-mono
       jq
       nil
@@ -45,12 +40,18 @@ in
 
   home.sessionVariables = {
     EDITOR = "vim";
-    GOPATH = "~/.local/share/go";
+    NPM_CONFIG_USERCONFIG = "${config.xdg.configHome}/npm/npmrc";
+    GOPATH = "${config.xdg.dataHome}/go";
+    PYTHONSTARTUP = "${config.xdg.configHome}/python/pythonrc";
+    LESSHISTFILE = "${config.xdg.cacheHome}/less/history";
+    INPUTRC = "${config.xdg.configHome}/readline/inputrc";
   };
 
   #---------------------------------------------------------------------
   # Programs & services
   #---------------------------------------------------------------------
+
+  xdg.enable = true;
 
   programs.home-manager.enable = true;
 
@@ -92,6 +93,7 @@ in
 
   programs.gpg = {
     enable = true;
+    homedir = "${config.xdg.dataHome}/gnupg";
   };
 
   programs.mise = {
@@ -110,6 +112,10 @@ in
 
   programs.zsh = {
     enable = true;
+    dotDir = "${config.xdg.configHome}/zsh";
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
     shellAliases = {
       ls = "eza --grid --icons --sort=type";
       rebuild =
@@ -118,11 +124,41 @@ in
         else
           "home-manager switch --flake ~/.config/nix/#wsl";
     };
+    initContent = builtins.readFile ./extra.zshrc;
+    plugins = [
+      {
+        name = "fzf-tab";
+        src = pkgs.zsh-fzf-tab;
+        file = "share/fzf-tab/fzf-tab.plugin.zsh";
+      }
+    ];
+    defaultKeymap = "emacs";
+    history = {
+      size = 5000;
+      save = 5000;
+      path = "${config.xdg.dataHome}/zsh/history";
+      append = true;
+      share = true;
+      ignoreSpace = true;
+      ignoreDups = true;
+      ignoreAllDups = true;
+      expireDuplicatesFirst = true;
+    };
   };
 
   programs.oh-my-posh = {
     enable = true;
     useTheme = "gruvbox";
+  };
+
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
   };
 
   services.gpg-agent = {
