@@ -124,7 +124,7 @@ in
         else
           "home-manager switch --flake ~/.config/nix/#wsl";
     };
-    initContent = builtins.readFile ./extra.zshrc;
+    initContent = builtins.readFile ./config.zsh;
     plugins = [
       {
         name = "fzf-tab";
