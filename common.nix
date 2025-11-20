@@ -41,6 +41,7 @@ in
     ++ (lib.optionals isLinux [
       gcc
       pinentry-curses
+      zsh
     ]);
 
   #---------------------------------------------------------------------
