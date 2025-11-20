@@ -168,7 +168,7 @@ in
   services.gpg-agent = {
     enable = true;
     enableZshIntegration = true;
-    pinentry.package = if isDarwin then pkgs.pinentry_mac else pkgs.pinentry_curses;
+    pinentry.package = if isDarwin then pkgs.pinentry_mac else pkgs.pinentry-curses;
   };
 
   programs.home-manager.enable = true;
