@@ -1,4 +1,8 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  ...
+}:
 
 let
   isDarwin = pkgs.stdenv.isDarwin;
@@ -11,6 +15,8 @@ in
   # Packages
   #---------------------------------------------------------------------
 
+  fonts.fontconfig.enable = true;
+
   home.packages =
     with pkgs;
     [
@@ -18,8 +24,10 @@ in
       eza
       fd
       gh
-      nerd-fonts.jetbrains-mono
+      jetbrains-mono
       jq
+      lazygit
+      nerd-fonts.jetbrains-mono
       nil
       nixd
       ripgrep
@@ -32,14 +40,13 @@ in
       pinentry-curses
     ]);
 
-  fonts.fontconfig.enable = true;
-
   #---------------------------------------------------------------------
   # Environment variables & dotfiles
   #---------------------------------------------------------------------
 
+  xdg.enable = true;
+
   home.sessionVariables = {
-    EDITOR = "vim";
     NPM_CONFIG_USERCONFIG = "${config.xdg.configHome}/npm/npmrc";
     GOPATH = "${config.xdg.dataHome}/go";
     PYTHONSTARTUP = "${config.xdg.configHome}/python/pythonrc";
@@ -51,9 +58,67 @@ in
   # Programs & services
   #---------------------------------------------------------------------
 
-  xdg.enable = true;
+  programs.mise = {
+    enable = true;
 
-  programs.home-manager.enable = true;
+    globalConfig = {
+      tools = {
+        bun = "latest";
+        deno = "latest";
+        go = "latest";
+        node = "24";
+        python = "latest";
+      };
+    };
+  };
+
+  programs.oh-my-posh = {
+    enable = true;
+    useTheme = "gruvbox";
+  };
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+  programs.zsh = {
+    enable = true;
+    dotDir = "${config.xdg.configHome}/zsh";
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+    shellAliases = {
+      ls = "eza --grid --icons --sort=type";
+      rebuild =
+        if isDarwin then
+          "sudo darwin-rebuild switch --flake ~/.config/nix/#mac"
+        else
+          "home-manager switch --flake ~/.config/nix/#wsl";
+    };
+    initContent = builtins.readFile ./config.zsh;
+    plugins = [
+      {
+        name = "fzf-tab";
+        src = pkgs.zsh-fzf-tab;
+        file = "share/fzf-tab/fzf-tab.plugin.zsh";
+      }
+    ];
+    defaultKeymap = "emacs";
+    history = {
+      size = 10000;
+      save = 10000;
+      path = "${config.xdg.dataHome}/zsh/history";
+      append = true;
+      share = true;
+      ignoreSpace = true;
+      ignoreDups = true;
+      ignoreAllDups = true;
+      expireDuplicatesFirst = true;
+    };
+  };
 
   programs.git = {
     enable = true;
@@ -95,75 +160,11 @@ in
     enable = true;
     homedir = "${config.xdg.dataHome}/gnupg";
   };
-
-  programs.mise = {
-    enable = true;
-
-    globalConfig = {
-      tools = {
-        bun = "latest";
-        deno = "latest";
-        go = "latest";
-        node = "24";
-        python = "latest";
-      };
-    };
-  };
-
-  programs.zsh = {
-    enable = true;
-    dotDir = "${config.xdg.configHome}/zsh";
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-    shellAliases = {
-      ls = "eza --grid --icons --sort=type";
-      rebuild =
-        if isDarwin then
-          "sudo darwin-rebuild switch --flake ~/.config/nix/#mac"
-        else
-          "home-manager switch --flake ~/.config/nix/#wsl";
-    };
-    initContent = builtins.readFile ./config.zsh;
-    plugins = [
-      {
-        name = "fzf-tab";
-        src = pkgs.zsh-fzf-tab;
-        file = "share/fzf-tab/fzf-tab.plugin.zsh";
-      }
-    ];
-    defaultKeymap = "emacs";
-    history = {
-      size = 5000;
-      save = 5000;
-      path = "${config.xdg.dataHome}/zsh/history";
-      append = true;
-      share = true;
-      ignoreSpace = true;
-      ignoreDups = true;
-      ignoreAllDups = true;
-      expireDuplicatesFirst = true;
-    };
-  };
-
-  programs.oh-my-posh = {
-    enable = true;
-    useTheme = "gruvbox";
-  };
-
-  programs.fzf = {
-    enable = true;
-    enableZshIntegration = true;
-  };
-
-  programs.zoxide = {
-    enable = true;
-    enableZshIntegration = true;
-  };
-
   services.gpg-agent = {
     enable = true;
     enableZshIntegration = true;
     pinentry.package = if isDarwin then pkgs.pinentry_mac else pkgs.pinentry_curses;
   };
+
+  programs.home-manager.enable = true;
 }
