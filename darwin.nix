@@ -68,6 +68,8 @@
         AppleIconAppearanceTheme = "RegularAutomatic";
         AppleInterfaceStyleSwitchesAutomatically = true;
         AppleShowAllExtensions = true;
+        KeyRepeat = 2;
+        InitialKeyRepeat = 15;
       };
     };
     dock = {
