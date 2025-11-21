@@ -42,8 +42,8 @@
       "protonvpn"
       "slack"
       "spotify"
+      "visual-studio-code"
       "whatsapp"
-      "zed"
     ];
   };
 
@@ -97,7 +97,7 @@
           app = "/Applications/Obsidian.app";
         }
         {
-          app = "/Applications/Zed.app";
+          app = "/Applications/Visual Studio Code.app";
         }
         {
           app = "/Applications/Ghostty.app";
